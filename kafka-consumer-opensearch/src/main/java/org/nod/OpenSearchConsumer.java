@@ -130,7 +130,7 @@ public class OpenSearchConsumer {
 
                         // IndexResponse response = openSearchClient.index(indexRequest, RequestOptions.DEFAULT);
 
-                        // Instead adding data one by one
+                        // Instead adding data one by one use bulk insert
                         bulkRequest.add(indexRequest);
 
                         // log.info(response.getId());
