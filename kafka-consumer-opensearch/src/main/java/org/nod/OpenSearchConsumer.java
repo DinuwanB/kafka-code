@@ -1,5 +1,6 @@
 package org.nod;
 
+import com.google.gson.JsonParser;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -110,10 +111,18 @@ public class OpenSearchConsumer {
 
                 for (ConsumerRecord<String, String> record : records) {
 
+                    // idempotence
+                    // strategy 1 - define an ID using kafka record coordinates -  this is unique
+                    // String id = record.topic() + "_" + record.partition() + "_" + record.offset();
+
                     try {
+                        // strategy 2 - extract id from the JSON value
+                        String id = extractId(record.value());
+
                         // save record in OpenSearch
                         IndexRequest indexRequest = new IndexRequest("wikimedia")
-                                .source(record.value(), XContentType.JSON);
+                                .source(record.value(), XContentType.JSON)
+                                .id(id);
 
                         IndexResponse response = openSearchClient.index(indexRequest, RequestOptions.DEFAULT);
                         log.info(response.getId());
@@ -123,8 +132,6 @@ public class OpenSearchConsumer {
 
                 }
             }
-
-
         }
     }
 
@@ -143,5 +150,15 @@ public class OpenSearchConsumer {
 
         // create consumer $ return
         return new KafkaConsumer<>(properties);
+    }
+
+    private static String extractId(String value) {
+        // gson library
+        return JsonParser.parseString(value)
+                .getAsJsonObject()
+                .get("meta")
+                .getAsJsonObject()
+                .get("id")
+                .getAsString();
     }
 }
