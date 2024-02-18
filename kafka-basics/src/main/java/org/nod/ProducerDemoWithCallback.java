@@ -27,7 +27,7 @@ public class ProducerDemoWithCallback {
         // send the data - asynchronous
         for (int i = 0; i < 10; i++) {
             // create a producer record
-            ProducerRecord<String, String> producerRecord = new ProducerRecord<>("demo_java", "hello Kushani mm " + i);
+            ProducerRecord<String, String> producerRecord = new ProducerRecord<>("demo_java", "hello World " + i);
 
             producer.send(producerRecord, new Callback() {
                 @Override
